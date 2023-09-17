@@ -11,7 +11,7 @@ jobs:
       matrix:
         houdini_version: [19.5]
         include:
-          - python_version: 3.9
+          - python-version: 3.9
             houdini_version: 19.5
 
     runs-on: ubuntu-latest
