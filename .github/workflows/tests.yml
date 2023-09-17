@@ -29,13 +29,13 @@ jobs:
           client_secret_key: ${{ secrets.SESI_SECRET_KEY }}
           houdini_version: ${{ matrix.houdini_version }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: pypy${{ matrix.python-version }}
+#      - name: Set up Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: pypy${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: python${{ matrix.python-version }} -m pip install tox tox-gh-actions
+        run: python3 -m pip install tox tox-gh-actions
 
       - name: Test with tox
         run: tox
