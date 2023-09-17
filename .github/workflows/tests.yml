@@ -7,9 +7,12 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        houdini_version: [19.5]
     runs-on: ubuntu-latest
     container:
-      image: captainhammy/hython-runner:19.5
+      image: captainhammy/hython-runner:${{ matrix.houdini_version }}
 
     steps:
       - name: Checkout repo
@@ -20,7 +23,7 @@ jobs:
         with:
           client_id: ${{ secrets.SESI_CLIENT_ID }}
           client_secret_key: ${{ secrets.SESI_SECRET_KEY }}
-          houdini_version: 19.5
+          houdini_version: ${{ matrix.houdini_version }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,7 +36,7 @@ jobs:
       - name: Test with tox
         run: tox
 
-#      - name: Upload coverage reports to Codecov
-#        uses: codecov/codecov-action@v3
-#        env:
-#          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
