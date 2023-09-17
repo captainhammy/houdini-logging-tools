@@ -9,10 +9,12 @@ jobs:
   build:
     strategy:
       matrix:
-        houdini_version: [19.5]
+        houdini_version: [19.5, 20.0]
         include:
           - python-version: 3.9
             houdini_version: 19.5
+          - python-version: 3.10
+            houdini_version: 20.0
 
     runs-on: ubuntu-latest
     container:
