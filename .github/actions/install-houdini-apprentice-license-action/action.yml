@@ -42,7 +42,7 @@ runs:
     - run: sesinetd
       shell: bash
 
-    - run: python3 ${{ github.action_path }}/install_apprentice_keys.py ${{ inputs.client_id }} ${{ inputs.client_secret_key }} ${{ inputs.houdini_version }}
+    - run: python3 ${GITHUB_ACTION_PATH}/install_apprentice_keys.py ${{ inputs.client_id }} ${{ inputs.client_secret_key }} ${{ inputs.houdini_version }}
       shell: bash
 
     - run: hserver -h localhost:1715
