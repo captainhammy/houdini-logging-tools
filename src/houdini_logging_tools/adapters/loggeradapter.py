@@ -1,9 +1,5 @@
 """Custom logging adapter for Houdini."""
 
-# ==============================================================================
-# IMPORTS
-# ==============================================================================
-
 # Future
 from __future__ import annotations
 
@@ -15,9 +11,7 @@ from typing import Any, Callable, Optional, Tuple, Type
 # Houdini
 import hou
 
-# ==============================================================================
-# GLOBALS
-# ==============================================================================
+# Globals
 
 # Call kwargs that should be moved into the extra data passed to process().
 _KWARGS_TO_EXTRA_KEYS = (
@@ -39,9 +33,7 @@ _TO_WRAP = {
 }
 
 
-# ==============================================================================
-# CLASSES
-# ==============================================================================
+# Classes
 
 
 class HoudiniLoggerAdapter(logging.LoggerAdapter):
@@ -98,9 +90,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
 
         return inst
 
-    # --------------------------------------------------------------------------
-    # CLASS METHODS
-    # --------------------------------------------------------------------------
+    # Class Methods
 
     @classmethod
     def from_name(
@@ -121,10 +111,10 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
         Args:
             name:
                 The name of the logger to use.
-            dialog:
-                Whether to always utilize the dialog option.
             node:
                 Optional node for prefixing messages with the path.
+            dialog:
+                Whether to always utilize the dialog option.
             status_bar:
                 Whether to always utilize the dialog option.
             extra:
@@ -141,9 +131,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
             base_logger, node=node, dialog=dialog, status_bar=status_bar, extra=extra
         )
 
-    # --------------------------------------------------------------------------
-    # PROPERTIES
-    # --------------------------------------------------------------------------
+    # Properties
 
     @property
     def dialog(self) -> bool:
@@ -176,9 +164,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
     def status_bar(self, status_bar: bool) -> None:
         self._status_bar = status_bar
 
-    # --------------------------------------------------------------------------
-    # METHODS
-    # --------------------------------------------------------------------------
+    # Methods
 
     def process(self, msg: str, kwargs: Any) -> Tuple[str, Any]:
         """Override process() function to possibly insert a node path or to
@@ -235,9 +221,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
         return msg, kwargs
 
 
-# ==============================================================================
-# NON-PUBLIC FUNCTIONS
-# ==============================================================================
+# Non-Public Functions
 
 
 def _wrap_logger(func: Callable, severity: hou.severityType) -> Callable:
