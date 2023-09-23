@@ -56,7 +56,5 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Topic :: Utilities",
     ],
-    project_urls={
-        "Documentation": "https://houdini-logging-tools.readthedocs.io/"
-    },
+    project_urls={"Documentation": "https://houdini-logging-tools.readthedocs.io/"},
 )
