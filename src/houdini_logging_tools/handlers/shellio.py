@@ -1,9 +1,5 @@
 """Custom logging stream handler which writes to Houdini Python Shell panels."""
 
-# =============================================================================
-# IMPORTS
-# =============================================================================
-
 # Standard Library
 import logging
 import sys
@@ -11,9 +7,7 @@ import sys
 # Houdini
 import hou
 
-# =============================================================================
-# CLASSES
-# =============================================================================
+# Classes
 
 
 class PythonShellHandler(logging.StreamHandler):
@@ -27,9 +21,7 @@ class PythonShellHandler(logging.StreamHandler):
 
     """
 
-    # -------------------------------------------------------------------------
-    # METHODS
-    # -------------------------------------------------------------------------
+    # Methods
 
     def emit(self, record: logging.LogRecord) -> None:
         """Emit a log message.

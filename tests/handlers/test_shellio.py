@@ -1,9 +1,5 @@
 """Tests for houdini_logging_tools.handlers.shellio module."""
 
-# =============================================================================
-# IMPORTS
-# =============================================================================
-
 # Standard Library
 import logging
 
@@ -16,9 +12,7 @@ import houdini_logging_tools.handlers.shellio
 # Houdini
 import hou
 
-# =============================================================================
-# FIXTURES
-# =============================================================================
+# Fixtures
 
 
 @pytest.fixture
@@ -36,9 +30,7 @@ def init_handler(mocker):
     return _create
 
 
-# =============================================================================
-# TESTS
-# =============================================================================
+# Tests
 
 
 class Test_PythonShellHandler:

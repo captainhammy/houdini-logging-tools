@@ -1,9 +1,5 @@
 """Tests for houdini_logging_tools.adapters.loggeradapter module."""
 
-# =============================================================================
-# IMPORTS
-# =============================================================================
-
 # Standard Library
 import logging
 
@@ -16,9 +12,7 @@ import houdini_logging_tools.adapters.loggeradapter
 # Houdini
 import hou
 
-# =============================================================================
-# FIXTURES
-# =============================================================================
+# Fixtures
 
 
 @pytest.fixture
@@ -31,9 +25,7 @@ def test_adapter():
     yield adapter
 
 
-# =============================================================================
-# TESTS
-# =============================================================================
+# Tests
 
 
 class Test_HoudiniLoggerAdapter:
@@ -58,6 +50,8 @@ class Test_HoudiniLoggerAdapter:
         assert log._dialog == mock_dialog
         assert log._node == mock_node
         assert log._status_bar == mock_status_bar
+
+    # Class Methods
 
     def test_from_name(self):
         """Test HoudiniLoggerAdapter.from_name()."""

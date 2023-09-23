@@ -55,6 +55,7 @@ venv
 build
 dist
 *egg-info*
+_build
 
 tests/fixtures/data/backup
 
