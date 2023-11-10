@@ -7,28 +7,36 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        houdini_version: [19.5]
-
-    runs-on: ubuntu-latest
+        houdini-version: ["20.0", "19.5"]
+        include:
+          - houdini-version: "20.0"
+            python-version: "3.10"
+          - houdini-version: "19.5"
+            python-version: "3.9"
     container:
-      image: captainhammy/hython-runner:${{ matrix.houdini_version }}
+      image: captainhammy/hython-runner:${{ matrix.houdini-version }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: pypy${{ matrix.python-version }}
+
       - name: Install Apprentice Licenses
-        uses: captainhammy/install-houdini-apprentice-license-action@v4
+        uses: captainhammy/install-houdini-apprentice-license-action@v5
 
         with:
           client_id: ${{ secrets.SESI_CLIENT_ID }}
           client_secret_key: ${{ secrets.SESI_SECRET_KEY }}
-          houdini_version: ${{ matrix.houdini_version }}
 
       - name: Install dependencies
-        run: python3 -m pip install tox tox-gh-actions
+        run: python${{ matrix.python-version }} -m pip install tox tox-gh-actions
 
       - name: Test with tox
         run: tox
