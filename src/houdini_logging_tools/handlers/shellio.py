@@ -11,14 +11,12 @@ import hou
 
 
 class PythonShellHandler(logging.StreamHandler):
-    """Custom stream handler which outputs to the interactive Python shell
-    when it is open.
+    """Custom stream handler which outputs to the interactive Python shell when it is open.
 
     Houdini will redirect sys.stdout to be an instance of hou.ShellIO when there
     is a Python Shell panel active and displayed.  This handler works by checking
-    that sys.stdout is a hou.ShellIO and writes output to it accordingly.  If
-    it is not, no output will be written.
-
+    that sys.stdout is a hou.ShellIO and writes output to it accordingly.  Otherwise,
+    no output will be written.
     """
 
     # Methods
@@ -29,14 +27,13 @@ class PythonShellHandler(logging.StreamHandler):
         Args:
             record:
                 The log record to emit.
-
         """
         try:
             # Get the current stdout stream. Houdini will muck around with
             # this depending on whether a PythonShell panel is open.
             stream = sys.stdout
 
-            # If the stream is really an output to a Python Shell then we know
+            # If the stream is really an output to a Python Shell, then we know
             # that we want to write the message to it. Otherwise, a panel isn't
             # open, so we don't have anything to write to.
             if isinstance(stream, hou.ShellIO):
@@ -48,9 +45,12 @@ class PythonShellHandler(logging.StreamHandler):
                 stream.flush()
 
         # Re-raise these as we don't want to actually handle them.
-        except (KeyboardInterrupt, SystemExit) as inst:
-            raise inst
+        except KeyboardInterrupt:
+            raise
 
-        # Otherwise handle the error.
-        except Exception:  # pylint: disable=broad-except
+        except SystemExit:
+            raise
+
+        # Otherwise, handle the error.
+        except Exception:  # noqa: BLE001
             self.handleError(record)

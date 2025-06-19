@@ -6,7 +6,10 @@ from __future__ import annotations
 # Standard Library
 import logging
 from functools import wraps
-from typing import Any, Callable, Optional, Tuple, Type
+from typing import Any, Callable, Self
+
+# Houdini Logging Tools
+from houdini_logging_tools.mappings import LOGGING_TO_SEVERITY_MAP
 
 # Houdini
 import hou
@@ -21,25 +24,15 @@ _KWARGS_TO_EXTRA_KEYS = (
     "title",
 )
 
-# Logging functions to wrap, and a corresponding severity for popup
-# messages.
-_TO_WRAP = {
-    "critical": hou.severityType.Error,
-    "debug": hou.severityType.Message,
-    "error": hou.severityType.Error,
-    "exception": hou.severityType.Error,
-    "info": hou.severityType.ImportantMessage,
-    "warning": hou.severityType.Warning,
-}
-
 
 # Classes
 
 
 class HoudiniLoggerAdapter(logging.LoggerAdapter):
-    """Custom LoggerAdapter for Houdini that allows automated addition of node
-    paths and log display in dialogs, status bar, etc.  Also allows for
-    automated notification.
+    """Custom LoggerAdapter for Houdini.
+
+    This adapter allows automated addition of node paths and log display in dialogs,
+    status bar, etc. Also allows for automated notification.
 
     Args:
         base_logger:
@@ -47,9 +40,9 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
         node:
             Optional node for prefixing messages with the path.
         dialog:
-            Whether to always utilize the dialog option.
+            Whether to always use the dialog option.
         status_bar:
-            Whether to always utilize the dialog option.
+            Whether to always use the status bar option.
         extra:
             Extra args to use to generate log messages.
     """
@@ -58,11 +51,12 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
         self,
         base_logger: logging.Logger,
         node: hou.Node = None,
+        *,
         dialog: bool = False,
         status_bar: bool = False,
-        extra: Optional[dict] = None,
+        extra: dict | None = None,
     ) -> None:
-        extra = extra if extra else {}
+        extra = extra or {}
 
         super().__init__(base_logger, extra)
 
@@ -71,15 +65,15 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
         self._status_bar = status_bar
 
     def __new__(
-        cls: Type[HoudiniLoggerAdapter],  # pylint: disable=unused-argument
+        cls: type[Self],
         *args: Any,
         **kwargs: Any,
-    ) -> HoudiniLoggerAdapter:  # pragma: no cover
+    ) -> Self:  # pragma: no cover
         """Overridden __new__ that will wrap logging methods with custom function."""
-        inst = super(HoudiniLoggerAdapter, cls).__new__(cls)
+        inst = super().__new__(cls)
 
         # We want to wrap various log calls to process args and set severities.
-        for key, severity in _TO_WRAP.items():
+        for key, severity in LOGGING_TO_SEVERITY_MAP.items():
             if hasattr(inst, key):
                 attr = getattr(inst, key)
 
@@ -94,12 +88,13 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
 
     @classmethod
     def from_name(
-        cls,
+        cls: type[Self],
         name: str,
         node: hou.Node = None,
+        *,
         dialog: bool = False,
         status_bar: bool = False,
-        extra: Optional[dict] = None,
+        extra: dict | None = None,
     ) -> HoudiniLoggerAdapter:
         """Create a new HoudiniLoggerAdapter from a name.
 
@@ -114,22 +109,19 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
             node:
                 Optional node for prefixing messages with the path.
             dialog:
-                Whether to always utilize the dialog option.
+                Whether to always use the dialog option.
             status_bar:
-                Whether to always utilize the dialog option.
+                Whether to always use the status bar option.
             extra:
                 Extra args to use to generate log messages.
 
         Returns:
             An adapter wrapping a logger of the passed name.
-
         """
         # Create a base logger
         base_logger = logging.getLogger(name)
 
-        return cls(
-            base_logger, node=node, dialog=dialog, status_bar=status_bar, extra=extra
-        )
+        return cls(base_logger, node=node, dialog=dialog, status_bar=status_bar, extra=extra)
 
     # Properties
 
@@ -145,12 +137,12 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
     # --------------------------------------------------------------------------
 
     @property
-    def node(self) -> Optional[hou.Node]:
+    def node(self) -> hou.Node | None:
         """A node the logger is associated with."""
         return self._node
 
     @node.setter
-    def node(self, node: Optional[hou.Node]) -> None:
+    def node(self, node: hou.Node | None) -> None:
         self._node = node
 
     # --------------------------------------------------------------------------
@@ -166,10 +158,11 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
 
     # Methods
 
-    def process(self, msg: str, kwargs: Any) -> Tuple[str, Any]:
-        """Override process() function to possibly insert a node path or to
-        display a dialog with the log message before being passed to regular
-        logging output.
+    def process(self, msg: str, kwargs: Any) -> tuple[str, Any]:
+        """Override function to handle custom logic.
+
+        This will possibly insert a node path or to display a dialog with the log
+        message before being passed to regular logging output.
 
         Args:
             msg:
@@ -179,7 +172,6 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
 
         Returns:
             The message and updated kwargs.
-
         """
         extra: dict = self.extra  # type: ignore
 
@@ -201,7 +193,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
 
                 # If we have message args we need to format the message with them.
                 if "message_args" in extra:
-                    houdini_message = houdini_message % extra["message_args"]
+                    houdini_message %= extra["message_args"]
 
                 severity = extra.pop("severity", hou.severityType.Message)
 
@@ -209,9 +201,7 @@ class HoudiniLoggerAdapter(logging.LoggerAdapter):
                 if dialog:
                     title = extra.pop("title", None)
 
-                    hou.ui.displayMessage(
-                        houdini_message, severity=severity, title=title
-                    )
+                    hou.ui.displayMessage(houdini_message, severity=severity, title=title)
 
                 if status_bar:
                     hou.ui.setStatusMessage(houdini_message, severity=severity)
@@ -236,7 +226,6 @@ def _wrap_logger(func: Callable, severity: hou.severityType) -> Callable:
 
     Returns:
         The wrapped function.
-
     """
 
     @wraps(func)
@@ -251,7 +240,7 @@ def _wrap_logger(func: Callable, severity: hou.severityType) -> Callable:
             if key in kwargs:
                 extra[key] = kwargs.pop(key)
 
-        # If there is more than one arg we want to pass them as extra data so that
+        # If there is more than one arg, we want to pass them as extra data so that
         # we can use it to format the message for extra outputs.
         if len(args) > 1:
             extra["message_args"] = args[1:]
