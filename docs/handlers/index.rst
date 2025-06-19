@@ -6,4 +6,5 @@ Handlers
    :maxdepth: 2
    :caption: Contents:
 
+   houdini_logging
    shellio
