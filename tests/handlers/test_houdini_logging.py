@@ -49,7 +49,6 @@ class TestHoudiniLoggingHandler:
 
         assert source_name in hou.logging.sources()
 
-
     def test_emit(self, init_handler, mocker):
         """Test HoudiniLoggingHandler.emit()."""
         mock_record = mocker.MagicMock(spec=logging.LogRecord)
