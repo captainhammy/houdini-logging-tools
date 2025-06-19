@@ -1,9 +1,6 @@
 houdini\_logging\_tools.handlers
 ================================
 
-Submodules
-----------
-
 houdini\_logging\_tools.handlers.shellio module
 -----------------------------------------------
 
@@ -12,10 +9,10 @@ houdini\_logging\_tools.handlers.shellio module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+houdini\_logging\_tools.handlers.houdini_logging module
+-------------------------------------------------------
 
-.. automodule:: houdini_logging_tools.handlers
+.. automodule:: houdini_logging_tools.handlers.houdini_logging
    :members:
    :undoc-members:
    :show-inheritance:
