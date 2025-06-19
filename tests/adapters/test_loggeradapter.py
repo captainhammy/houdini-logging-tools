@@ -17,18 +17,16 @@ import hou
 
 @pytest.fixture
 def test_adapter():
-    """Fixture to provide a minimally set up HoudiniLoggerAdapter."""
+    """Fixture to provide a HoudiniLoggerAdapter."""
     logger = logging.getLogger("test_logger")
 
-    adapter = houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter(logger)
-
-    yield adapter
+    return houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter(logger)
 
 
 # Tests
 
 
-class Test_HoudiniLoggerAdapter:
+class TestHoudiniLoggerAdapter:
     """Test houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter."""
 
     def test___init__(self, mocker):
@@ -41,7 +39,7 @@ class Test_HoudiniLoggerAdapter:
         mock_status_bar = mocker.MagicMock(spec=bool)
 
         log = houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter(
-            test_logger, mock_node, mock_dialog, mock_status_bar, extra=extra
+            test_logger, mock_node, dialog=mock_dialog, status_bar=mock_status_bar, extra=extra
         )
 
         assert log.logger == test_logger
@@ -55,22 +53,16 @@ class Test_HoudiniLoggerAdapter:
 
     def test_from_name(self):
         """Test HoudiniLoggerAdapter.from_name()."""
-        result = (
-            houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter.from_name(
-                "test_name"
-            )
-        )
+        result = houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter.from_name("test_name")
 
         assert result.logger.name == "test_name"
 
-        result = (
-            houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter.from_name(
-                "test_name",
-                node=hou.node("/obj"),
-                dialog=True,
-                status_bar=True,
-                extra={"foo": "bar"},
-            )
+        result = houdini_logging_tools.adapters.loggeradapter.HoudiniLoggerAdapter.from_name(
+            "test_name",
+            node=hou.node("/obj"),
+            dialog=True,
+            status_bar=True,
+            extra={"foo": "bar"},
         )
 
         assert result.logger.name == "test_name"
@@ -125,12 +117,12 @@ class Test_HoudiniLoggerAdapter:
 
         assert result == ("/obj - test logger message", kwargs)
 
+    @pytest.mark.usefixtures("set_ui_available")
     def test_process__ui_passed_no_severity_no_title(
         self,
         mocker,
         test_adapter,
         mock_hou_ui,
-        set_ui_available,
     ):
         """Test HoudiniLoggerAdapter.process() when passing 'dialog' and 'status_bar' via the extra dict."""
         mock_message = mocker.MagicMock(spec=str)
@@ -141,18 +133,15 @@ class Test_HoudiniLoggerAdapter:
 
         assert result == (mock_message, kwargs)
 
-        mock_hou_ui.displayMessage.assert_called_with(
-            mock_message, severity=hou.severityType.Message, title=None
-        )
-        mock_hou_ui.setStatusMessage.assert_called_with(
-            mock_message, severity=hou.severityType.Message
-        )
+        mock_hou_ui.displayMessage.assert_called_with(mock_message, severity=hou.severityType.Message, title=None)
+        mock_hou_ui.setStatusMessage.assert_called_with(mock_message, severity=hou.severityType.Message)
 
-    def test_process__ui_properties_with_severity_and_title(
-        self, mocker, test_adapter, mock_hou_ui, set_ui_available
-    ):
-        """Test HoudiniLoggerAdapter.process() passing 'dialog' and 'status_bar' via properties with a severity
-        and title."""
+    @pytest.mark.usefixtures("set_ui_available")
+    def test_process__ui_properties_with_severity_and_title(self, mocker, test_adapter, mock_hou_ui):
+        """Test HoudiniLoggerAdapter.process() passing the following.
+
+        'dialog' and 'status_bar' via properties with a severity and title.
+        """
         test_adapter.dialog = True
         test_adapter.status_bar = True
 
@@ -165,17 +154,12 @@ class Test_HoudiniLoggerAdapter:
 
         assert result == (mock_message, kwargs)
 
-        mock_hou_ui.displayMessage.assert_called_with(
-            mock_message, severity=hou.severityType.Error, title=mock_title
-        )
-        mock_hou_ui.setStatusMessage.assert_called_with(
-            mock_message, severity=hou.severityType.Error
-        )
+        mock_hou_ui.displayMessage.assert_called_with(mock_message, severity=hou.severityType.Error, title=mock_title)
+        mock_hou_ui.setStatusMessage.assert_called_with(mock_message, severity=hou.severityType.Error)
 
-    @pytest.mark.parametrize("pass_dialog", (False, True))
-    def test_process__message_args(
-        self, test_adapter, mock_hou_ui, set_ui_available, pass_dialog
-    ):
+    @pytest.mark.usefixtures("set_ui_available")
+    @pytest.mark.parametrize("pass_dialog", [False, True])
+    def test_process__message_args(self, test_adapter, mock_hou_ui, pass_dialog):
         """Test HoudiniLoggerAdapter.process() passing 'message_args'."""
         test_adapter.dialog = pass_dialog
 
@@ -213,7 +197,7 @@ class Test_HoudiniLoggerAdapter:
         assert result == (mock_message, kwargs)
 
     @pytest.mark.parametrize(
-        "level, severity, num_message_args, passed_kwargs",
+        ("level", "severity", "num_message_args", "passed_kwargs"),
         [
             ("info", hou.severityType.ImportantMessage, 0, {"status_bar": True}),
             ("warning", hou.severityType.Warning, 1, {"node": hou.node("/obj")}),
@@ -223,9 +207,7 @@ class Test_HoudiniLoggerAdapter:
             ("exception", hou.severityType.Error, 1, {}),
         ],
     )
-    def test_calls(
-        self, mocker, test_adapter, level, severity, num_message_args, passed_kwargs
-    ):
+    def test_calls(self, mocker, test_adapter, level, severity, num_message_args, passed_kwargs):
         """Test the various log calls.
 
         This helps to test the _wrap_logger functionality and that the wrapping occurred as expected.
@@ -235,12 +217,10 @@ class Test_HoudiniLoggerAdapter:
 
         mock_msg = mocker.MagicMock(spec=str)
 
-        message_args = tuple(
-            [mocker.MagicMock(spec=str) for i in range(num_message_args)]
-        )
+        message_args = tuple(mocker.MagicMock(spec=str) for i in range(num_message_args))
 
         kwargs = {
-            "foo": 3,  # A dummy extra kwarg our calling code does not care about
+            "foo": 3,  # An extra kwarg our calling code does not care about
         }
         kwargs.update(passed_kwargs)
 
@@ -259,13 +239,13 @@ class Test_HoudiniLoggerAdapter:
             "stacklevel": passed_kwargs.get("stacklevel", 4),
         }
 
-        # If there were any extra message args we expect them to have been added
+        # If there were any extra message args, we expect them to have been added
         # to the extra dict.
         if num_message_args:
             expected_kwargs["extra"]["message_args"] = message_args
 
         for arg, value in passed_kwargs.items():
-            if arg in ("node", "dialog", "status_bar", "title"):
+            if arg in {"node", "dialog", "status_bar", "title"}:
                 expected_kwargs["extra"][arg] = value
 
         # If logging an exception, ensure that exc_info=True is passed.

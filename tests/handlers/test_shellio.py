@@ -21,7 +21,7 @@ def init_handler(mocker):
     mocker.patch.object(
         houdini_logging_tools.handlers.shellio.PythonShellHandler,
         "__init__",
-        lambda x, y: None,
+        return_value=None,
     )
 
     def _create():
@@ -33,14 +33,12 @@ def init_handler(mocker):
 # Tests
 
 
-class Test_PythonShellHandler:
+class TestPythonShellHandler:
     """Test houdini_logging_tools.handlers.shellio.PythonShellHandler object."""
 
     def test_emit__shellio(self, init_handler, mocker):
         """Test when sys.stdout is an instance of hou.ShellIO."""
-        mock_format = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "format"
-        )
+        mock_format = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "format")
 
         mock_message = mocker.MagicMock(spec=str)
 
@@ -61,9 +59,7 @@ class Test_PythonShellHandler:
 
     def test_emit__not_shellio(self, init_handler, mocker):
         """Test when sys.stdout is not an instance of hou.ShellIO."""
-        mock_format = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "format"
-        )
+        mock_format = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "format")
 
         mock_message = mocker.MagicMock(spec=str)
 
@@ -78,9 +74,7 @@ class Test_PythonShellHandler:
 
     def test_emit__keyboardinterrupt(self, init_handler, mocker):
         """Test when KeyboardInterrupt is raised."""
-        mock_format = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "format"
-        )
+        mock_format = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "format")
         mock_format.side_effect = KeyboardInterrupt
 
         mock_record = mocker.MagicMock(spec=logging.LogRecord)
@@ -95,9 +89,7 @@ class Test_PythonShellHandler:
 
     def test_emit__systemexit(self, init_handler, mocker):
         """Test when SystemExit is raised."""
-        mock_format = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "format"
-        )
+        mock_format = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "format")
         mock_format.side_effect = SystemExit
 
         mock_record = mocker.MagicMock(spec=logging.LogRecord)
@@ -112,14 +104,10 @@ class Test_PythonShellHandler:
 
     def test_emit__generic_exception(self, init_handler, mocker):
         """Test when a generic exception is raised."""
-        mock_format = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "format"
-        )
+        mock_format = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "format")
         mock_format.side_effect = Exception
 
-        mock_handle = mocker.patch.object(
-            houdini_logging_tools.handlers.shellio.PythonShellHandler, "handleError"
-        )
+        mock_handle = mocker.patch.object(houdini_logging_tools.handlers.shellio.PythonShellHandler, "handleError")
 
         mock_record = mocker.MagicMock(spec=logging.LogRecord)
         inst = init_handler()
